@@ -1,0 +1,83 @@
+pipeline {
+        agent none
+        options {
+          buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '5')
+        }
+
+            stages {
+                stage('parallel stage') {
+                    parallel {
+                            stage ('maven') {
+                                    agent {
+                                        label 'agent1'
+                                    }
+                                    tools {
+                                      maven 'maven.3.8.6'
+                                    }
+
+                                    steps {
+                                        git 'https://github.com/Coveros/helloworld'
+                                        sh '''
+                                        echo "choice maven selected"
+                                        mvn clean install
+                                        echo "maven build completed"
+
+                                        echo "completed"
+                                        '''
+                                        archiveArtifacts artifacts: '**/target/*.jar', onlyIfSuccessful: true
+                                    }
+                            
+                              } 
+
+                              stage ('gradle') {
+                                  agent {
+                                      label 'agent2'
+                                  }
+                                  tools {
+                                    gradle 'Gradle_Home'
+                                  }
+
+                                        steps {
+
+                                                sh '''
+                                                rm -rf workspace
+                                                rm -rf grpc-java-gradle-hello-world
+
+                                                git clone https://github.com/caio/grpc-java-gradle-hello-world.git
+                                                echo "gradle build started"
+                                                gradle --version
+                                                gradle init
+                                                gradle build
+                                                echo "gradle build completed"
+                                                '''
+                                                archiveArtifacts artifacts: '**/wrapper/*.jar', onlyIfSuccessful: true
+
+                                        }
+                                  post {
+                                        success {
+                                         sh '''
+                                          echo "gradle build successfully completed"
+                                          echo "archive the artifact and move to next stage"
+
+                                          echo "$JOB_NAME"
+                                          echo "$BUILD_NUMBER"
+                                          '''
+
+                                        }
+                                        failure {
+                                          echo "gradle build failed"
+                                          echo "Find the below URL to debug the issue"
+                                          echo "$BUILD_URL"
+                                        }
+                                  }
+        
+                            
+                        } 
+                
+                            
+                 }
+                }
+                    
+            }        
+                    
+ }
