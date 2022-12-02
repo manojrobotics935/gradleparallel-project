@@ -58,7 +58,6 @@ pipeline {
                                          sh '''
                                           echo "gradle build successfully completed"
                                           echo "archive the artifact and move to next stage"
-
                                           echo "$JOB_NAME"
                                           echo "$BUILD_NUMBER"
                                           '''
