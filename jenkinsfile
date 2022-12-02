@@ -49,8 +49,8 @@ pipeline {
                                                 gradle build
                                                 echo "gradle build completed"
                                                 '''
-                                                archiveArtifacts artifacts: '**/wrapper/*.jar', onlyIfSuccessful: true
-
+                                                
+                                                        
                                         }
                                   post {
                                         success {
@@ -60,7 +60,7 @@ pipeline {
                                           echo "$JOB_NAME"
                                           echo "$BUILD_NUMBER"
                                           '''
-
+                                          archiveArtifacts artifacts: '**/wrapper/*.jar', onlyIfSuccessful: true
                                         }
                                         failure {
                                           echo "gradle build failed"
